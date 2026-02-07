@@ -9,6 +9,8 @@ import com.agkminds.zenith.services.User.CustomUserDetailsService;
 import com.agkminds.zenith.services.User.UserService;
 import com.agkminds.zenith.utils.LoginRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +38,7 @@ public class AuthController {
     private PasswordEncoder passwordEncoder;
 
     @PostMapping("/signup")
-    public AuthResponse registerUser(@RequestBody User user) {
+    public ResponseEntity<AuthResponse> registerUser(@RequestBody User user) {
         User existingUser = userRepository.findByEmail(user.getEmail());
 
         if (existingUser != null) {
@@ -44,27 +46,28 @@ public class AuthController {
         }
 
         User newUser = new User();
-        user.setFullName(user.getFullName());
-        user.setEmail(user.getEmail());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setGender(user.getGender());
+        newUser.setFullName(user.getFullName());
+        newUser.setEmail(user.getEmail());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        newUser.setGender(user.getGender());
 
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(newUser);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(savedUser.getEmail(), savedUser.getPassword());
 
         String token = JwtProvider.generateToken(authentication);
 
-        return new AuthResponse("Registered Successfully", token);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new AuthResponse("Registered Successfully", token));
     }
 
     @PostMapping("/login")
-    public AuthResponse registerUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<AuthResponse> loginUser(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticate(loginRequest.getEmail(), loginRequest.getPassword());
 
         String token = JwtProvider.generateToken(authentication);
 
-        return new AuthResponse("Login Successful", token);
+        return ResponseEntity.ok(new AuthResponse("Login Successful", token));
     }
 
     private Authentication authenticate(String email, String password) {

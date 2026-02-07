@@ -5,20 +5,18 @@ import com.agkminds.zenith.models.Story;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.repository.StoryRepository;
 import com.agkminds.zenith.services.User.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class StoryServiceImplementation implements StoryService {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private StoryRepository storyRepository;
+    private final UserService userService;
+    private final StoryRepository storyRepository;
 
     @Override
     public Story createStory(Story story, User user) {

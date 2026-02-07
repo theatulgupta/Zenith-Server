@@ -5,22 +5,22 @@ import com.agkminds.zenith.models.Chat;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.repository.ChatRepository;
 import com.agkminds.zenith.services.User.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ChatServiceImplementation implements ChatService {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ChatRepository chatRepository;
+    private final UserService userService;
+    private final ChatRepository chatRepository;
 
     @Override
+    @Transactional
     public Chat createChat(User reqUser, User chatWith) {
         Chat existingChat = chatRepository.findChatByUsersId(reqUser, chatWith);
         if (existingChat != null) {

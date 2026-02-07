@@ -8,27 +8,24 @@ import com.agkminds.zenith.repository.ChatRepository;
 import com.agkminds.zenith.repository.MessageRepository;
 import com.agkminds.zenith.services.Chat.ChatService;
 import com.agkminds.zenith.services.User.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class MessageServiceImplementation implements MessageService {
-    @Autowired
-    private ChatService chatService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private MessageRepository messageRepository;
-
-    @Autowired
-    private ChatRepository chatRepository;
+    private final ChatService chatService;
+    private final UserService userService;
+    private final MessageRepository messageRepository;
+    private final ChatRepository chatRepository;
 
     @Override
+    @Transactional
     public Message createMessage(User user, Integer chatId, Message message) throws ChatException {
         Chat chat = chatService.findChatById(chatId);
         if (chat == null) throw new ChatException("Chat not found with chatId " + chatId);

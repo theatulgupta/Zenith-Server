@@ -25,10 +25,10 @@ public class JwtProvider {
 
     public static String getEmailFromJwtToken(String jwt) {
         Claims claims = Jwts.parser()
-                .setSigningKey(key)
+                .verifyWith(key)
                 .build()
-                .parseClaimsJws(jwt.replace("Bearer ", ""))
-                .getBody();
+                .parseSignedClaims(jwt.replace("Bearer ", ""))
+                .getPayload();
 
         return claims.get("email", String.class);
     }

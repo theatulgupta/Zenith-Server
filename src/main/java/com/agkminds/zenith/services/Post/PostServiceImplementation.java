@@ -7,20 +7,19 @@ import com.agkminds.zenith.models.Post;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.repository.PostRepository;
 import com.agkminds.zenith.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class PostServiceImplementation implements PostService {
 
-    @Autowired
-    PostRepository postRepository;
-
-    @Autowired
-    UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Post createPost(Post post, Integer userId) throws PostException, UserException {
@@ -72,6 +71,7 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
+    @Transactional
     public Post toggleSavePost(Integer postId, Integer userId) throws PostException, UserException {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserException("User not found with id " + userId));
@@ -89,6 +89,7 @@ public class PostServiceImplementation implements PostService {
     }
 
     @Override
+    @Transactional
     public Post likePost(Integer postId, Integer userId) throws PostException, UserException {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserException("User not found with id " + userId));
         Post post = postRepository.findById(postId)

@@ -4,16 +4,17 @@ import com.agkminds.zenith.config.JwtProvider;
 import com.agkminds.zenith.exceptions.UserException;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImplementation implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<User> getAllUsers() throws UserException {
@@ -21,18 +22,12 @@ public class UserServiceImplementation implements UserService {
         if (users.isEmpty()) {
             throw new UserException("No users found.");
         }
-
-        users.forEach(user -> user.setPassword(null));
         return users;
     }
 
     @Override
     public User findUserById(Integer id) throws UserException {
         return userRepository.findById(id)
-                .map(user -> {
-                    user.setPassword(null);
-                    return user;
-                })
                 .orElseThrow(() -> new UserException("User not found with id: " + id));
     }
 
@@ -42,28 +37,30 @@ public class UserServiceImplementation implements UserService {
         if (user == null) {
             throw new UserException("User not found with email: " + email);
         }
-        user.setPassword(null);
         return user;
     }
 
     @Override
+    @Transactional
     public void updateUser(User user, Integer id) throws UserException {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserException("User not found with id: " + id));
 
-        if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            throw new UserException("Email is required.");
+        if (user.getFullName() != null && !user.getFullName().isEmpty()) {
+            existingUser.setFullName(user.getFullName());
+        }
+        if (user.getEmail() != null && !user.getEmail().isEmpty()) {
+            existingUser.setEmail(user.getEmail());
+        }
+        if (user.getGender() != null) {
+            existingUser.setGender(user.getGender());
         }
 
-        existingUser.setFullName(user.getFullName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setGender(user.getGender());
-
-        User newUser = userRepository.save(existingUser);
-        newUser.setPassword(null);
+        userRepository.save(existingUser);
     }
 
     @Override
+    @Transactional
     public void toggleFollowUser(Integer reqUserId, Integer userToFollowId, boolean follow) throws UserException {
         User reqUser = findUserById(reqUserId);
         User userToFollow = findUserById(userToFollowId);
@@ -97,7 +94,6 @@ public class UserServiceImplementation implements UserService {
         if (users.isEmpty()) {
             throw new UserException("No users found matching the query: " + query);
         }
-        users.forEach(user -> user.setPassword(null));
         return users;
     }
 

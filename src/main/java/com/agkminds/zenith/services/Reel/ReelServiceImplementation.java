@@ -6,25 +6,24 @@ import com.agkminds.zenith.models.Reel;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.repository.ReelRepository;
 import com.agkminds.zenith.services.User.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ReelServiceImplementation implements ReelService {
 
-    @Autowired
-    ReelRepository reelRepository;
-
-    @Autowired
-    UserService userService;
+    private final ReelRepository reelRepository;
+    private final UserService userService;
 
     @Override
     public Reel createReel(Reel reel, User user) throws UserException {
         if (user == null) {
             throw new UserException("User not found");
         }
+        reel.setUser(user);
         return reelRepository.save(reel);
     }
 

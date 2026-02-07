@@ -4,6 +4,7 @@ import com.agkminds.zenith.exceptions.UserException;
 import com.agkminds.zenith.models.User;
 import com.agkminds.zenith.services.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,10 +31,10 @@ public class UserController {
     }
 
     @PutMapping("/users/update")
-    public String updateUser(@RequestHeader("Authorization") String jwt) throws UserException {
-        User user = userService.findUserByJwt(jwt);
-        userService.updateUser(user, user.getId());
-        return "User Updated Successfully";
+    public ResponseEntity<String> updateUser(@RequestBody User user, @RequestHeader("Authorization") String jwt) throws UserException {
+        User reqUser = userService.findUserByJwt(jwt);
+        userService.updateUser(user, reqUser.getId());
+        return ResponseEntity.ok("User Updated Successfully");
     }
 
     @PutMapping("/users/toggle-follow/{userId}")
